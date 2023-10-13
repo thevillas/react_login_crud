@@ -1,7 +1,8 @@
 import user from '../models/user.models.js'
 import bcrypt from 'bcryptjs';
 import { createTokenAccess } from '../libs/jwt.js';
-import { token } from 'morgan';
+import { json } from 'express';
+//import { token } from 'morgan';
 
 export const register = async (req, res) => {
     //desestructurar el body que se envia
@@ -57,3 +58,21 @@ export const login = async (req, res) => {
         res.status(500).json({ message: error.message});
     }
 };
+
+export const logout = (req, res) => {
+    res.cookie('token', '',{
+        expires : new Date(0),
+    });
+    return res.sendStatus(200);
+};
+
+export const profile = async (req, res) =>{
+    const userFound = await user.findById(req.user.id);
+    if(userFound) return res.sendStatus(400).json({message: "user not found"})
+    
+    return res.status(201).json({
+        id: userFound._id,
+        username: userFound.username,
+        email: userFound.email
+    });
+}
